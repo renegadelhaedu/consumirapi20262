@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumidor de API JSON - Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Cabeçalho -->
+        <header class="app-header">
+            <div class="logo-area">
+                <span class="logo-icon">⚡</span>
+                <div>
+                    <h1>Consumidor de API JSON</h1>
+                    <p class="subtitle">Aplicação Flask com interface integrada para consumir e listar dados externos</p>
+                </div>
+            </div>
+            <div class="header-badges">
+                <span class="badge badge-flask">Flask 3.x</span>
+                <span class="badge badge-python">Python 3.12</span>
+            </div>
+        </header>
+
+        <!-- Painel de Controle e Endpoint -->
+        <section class="control-panel">
+            <label for="endpointInput" class="input-label">URL do Endpoint Externo:</label>
+            <div class="input-group">
+                <input 
+                    type="url" 
+                    id="endpointInput" 
+                    placeholder="https://api.exemplo.com/dados" 
+                    value="{{ default_endpoint }}"
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+                <button id="btnFetch" class="btn btn-primary">
+                    <span class="btn-icon">📥</span>
+                    <span class="btn-text">Carregar Dados</span>
+                </button>
+            </div>
+
+            <!-- Botões de Exemplo Rápido -->
+            <div class="presets-container">
+                <span class="presets-label">Exemplos rápidos:</span>
+                <button type="button" class="btn-preset" data-url="{{ default_endpoint }}">
+                    🎓 Alunos (Endpoint Padrão)
+                </button>
+                <button type="button" class="btn-preset" data-url="https://jsonplaceholder.typicode.com/users">
+                    👥 Usuários (JSONPlaceholder)
+                </button>
+                <button type="button" class="btn-preset" data-url="https://jsonplaceholder.typicode.com/posts">
+                    📝 Publicações (Posts)
+                </button>
+                <button type="button" class="btn-preset" data-url="https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL">
+                    💵 Cotações Moedas (AwesomeAPI)
+                </button>
+                <button type="button" class="btn-preset" data-url="https://viacep.com.br/ws/01001000/json/">
+                    📍 CEP Exemplo (ViaCEP)
+                </button>
+            </div>
+        </section>
+
+        <!-- Alerta de Erro -->
+        <div id="errorAlert" class="alert alert-error hidden" role="alert">
+            <span class="alert-icon">⚠️</span>
+            <div class="alert-content">
+                <strong>Ocorreu um erro:</strong>
+                <p id="errorMessage"></p>
+            </div>
+            <button id="btnCloseAlert" class="alert-close" aria-label="Fechar alerta">&times;</button>
+        </div>
+
+        <!-- Barra de Status e Filtros (quando dados carregados) -->
+        <section id="resultsHeader" class="results-header hidden">
+            <div class="results-stats">
+                <span id="badgeStatus" class="badge badge-success">HTTP 200</span>
+                <span id="badgeCount" class="badge badge-info">0 itens</span>
+                <span id="activeUrl" class="url-display" title=""></span>
+            </div>
+
+            <div class="results-actions">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="filterInput" placeholder="Filtrar dados na tela...">
+                </div>
+                
+                <div class="view-switch">
+                    <button id="btnViewCards" class="btn-view active" title="Visualização em Cartões">
+                        🗂️ Cards
+                    </button>
+                    <button id="btnViewTable" class="btn-view" title="Visualização em Tabela">
+                        📊 Tabela
+                    </button>
+                    <button id="btnViewRaw" class="btn-view" title="Ver JSON Bruto">
+                        { } JSON
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Indicador de Carregamento -->
+        <div id="loadingIndicator" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p>Conectando ao endpoint externo e obtendo dados...</p>
+        </div>
+
+        <!-- Estado Inicial / Vazio -->
+        <div id="emptyState" class="empty-state">
+            <div class="empty-icon">🌐</div>
+            <h3>Nenhum dado carregado no momento</h3>
+            <p>Selecione um endpoint ou insira a URL desejada acima e clique em <strong>"Carregar Dados"</strong>.</p>
+        </div>
+
+        <!-- Container de Apresentação dos Dados -->
+        <main id="contentContainer" class="content-container">
+            <!-- Visão em Cards -->
+            <div id="cardsView" class="cards-grid hidden"></div>
+
+            <!-- Visão em Tabela -->
+            <div id="tableView" class="table-container hidden">
+                <table class="data-table">
+                    <thead id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Visão em JSON Bruto -->
+            <div id="rawView" class="raw-container hidden">
+                <div class="raw-actions">
+                    <button id="btnCopyJson" class="btn btn-secondary btn-sm">📋 Copiar JSON</button>
+                </div>
+                <pre><code id="jsonCode"></code></pre>
+            </div>
+        </main>
+
+        <!-- Rodapé -->
+        <footer class="app-footer">
+            <p>Aplicação Flask com integração de requisições externas &bull; Backend com Python <code>requests</code></p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
